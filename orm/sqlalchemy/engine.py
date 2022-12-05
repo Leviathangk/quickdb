@@ -186,14 +186,14 @@ class SQLAlchemyEngineBase:
         with self.session() as session, session.begin():
             result = session.execute(sql, **kwargs)
 
-        if fetchone:
-            back = result.fetchone()
-        elif fetchmany:
-            back = result.fetchmany(size=fetchmany)
-        elif fetchall:
-            back = result.fetchall()
-        else:
-            return result
+            if fetchone:
+                back = result.fetchone()
+            elif fetchmany:
+                back = result.fetchmany(size=fetchmany)
+            elif fetchall:
+                back = result.fetchall()
+            else:
+                return result
 
         # 判断是否需要生成字典
         if back_dict and back:
