@@ -80,6 +80,11 @@ class RedisConn:
             **pool_kwargs
         )
 
+        if 'health_check_interval' not in conn_kwargs:
+            conn_kwargs.update({
+                'health_check_interval': 10
+            })
+
         self.conn = redis.Redis(connection_pool=pool, decode_responses=True, **conn_kwargs)
 
     def close(self):
@@ -98,11 +103,19 @@ class RedisConn:
 
 
 class RedisConnLazy:
-    def __init__(self, host: str = '127.0.0.1', port: int = 6379, pwd: str = None, **kwargs):
+    def __init__(
+            self,
+            host: str = '127.0.0.1',
+            port: int = 6379,
+            pwd: str = None,
+            pool_kwargs: dict = None,
+            conn_kwargs: dict = None
+    ):
         self.host = host
         self.port = port
         self.pwd = pwd
-        self.kwargs = kwargs
+        self.pool_kwargs = pool_kwargs or {}
+        self.conn_kwargs = conn_kwargs or {}
 
         self._map = {}
 
@@ -121,9 +134,15 @@ class RedisConnLazy:
             port=self.port,
             password=self.pwd,
             db=db,
+            **self.pool_kwargs
         )
 
-        self._map[db] = redis.Redis(connection_pool=pool, decode_responses=True, **self.kwargs)
+        if 'health_check_interval' not in self.conn_kwargs:
+            self.conn_kwargs.update({
+                'health_check_interval': 10
+            })
+
+        self._map[db] = redis.Redis(connection_pool=pool, decode_responses=True, **self.conn_kwargs)
 
         return self._map[db]
 
