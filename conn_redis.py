@@ -174,7 +174,8 @@ class RedisLock:
             lock_name: str,
             block_timeout: int = None,
             wait_timeout: int = None,
-            frequency: float = None
+            frequency: float = None,
+            drop_release_error: bool = False
     ):
         """
 
@@ -183,12 +184,14 @@ class RedisLock:
         :param block_timeout: 锁住的最大时间
         :param wait_timeout: 等待锁的最大时间
         :param frequency: 检查锁的频率
+        :param drop_release_error: 释放锁报错是否抛出
         """
         self._conn = conn
         self._lock_name = lock_name
         self._block_timeout = block_timeout or 60
         self._wait_timeout = wait_timeout
         self._frequency = frequency or 0.1
+        self._drop_release_error = drop_release_error
 
         self._lock = self._conn.lock(
             name=self._lock_name,
@@ -211,7 +214,11 @@ class RedisLock:
 
         :return:
         """
-        return self._lock.release()
+        try:
+            return self._lock.release()
+        except:
+            if self._drop_release_error:
+                raise
 
     def __enter__(self):
         self.acquire()
@@ -222,7 +229,13 @@ class RedisLock:
 
 # redis 不等待锁
 class RedisLockNoWait:
-    def __init__(self, conn, lock_name: str, block_timeout: int = None, auto_lock: bool = True):
+    def __init__(
+            self,
+            conn,
+            lock_name: str,
+            block_timeout: int = None,
+            auto_lock: bool = True,
+    ):
         """
 
         :param conn: redis 连接
@@ -260,7 +273,11 @@ class RedisLockNoWait:
 
         :return:
         """
-        if self._conn.get(self._lock_name) == self._token:
+        lock_name = self._conn.get(self._lock_name)
+        if lock_name is None:
+            return True
+
+        if lock_name.decode() == self._token:
             return bool(self._conn.delete(self._lock_name))
 
         return False
