@@ -249,7 +249,7 @@ class RedisLockNoWait:
         self._auto_lock = auto_lock
 
         self.lock_success = False  # 是否成功上锁
-        self._token = uuid.uuid1().hex.encode()
+        self._token = uuid.uuid1().hex.encode()  # 生成的 token 是 byte
 
     def acquire(self) -> bool:
         """
@@ -273,11 +273,11 @@ class RedisLockNoWait:
 
         :return:
         """
-        lock_name = self._conn.get(self._lock_name)
-        if lock_name is None:
+        token = self._conn.get(self._lock_name)
+        if token is None:
             return True
 
-        if lock_name.decode() == self._token:
+        if token == self._token:
             return bool(self._conn.delete(self._lock_name))
 
         return False
