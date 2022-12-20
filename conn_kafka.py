@@ -24,7 +24,7 @@ class KafkaMsgProducer:
 
         self.producer = KafkaProducer(bootstrap_servers=server, **kwargs)
 
-    def send(self, topic: str, msg: Union[str, dict], flush_now: bool = False) -> Future:
+    def send(self, topic: str, msg: Union[str, dict], flush_now: bool = False, **kwargs) -> Future:
         """
 
         :param topic: topic
@@ -35,7 +35,7 @@ class KafkaMsgProducer:
         if isinstance(msg, dict):
             msg = json.dumps(msg, ensure_ascii=False)
 
-        future = self.producer.send(topic=topic, value=msg.encode())
+        future = self.producer.send(topic=topic, value=msg.encode(), **kwargs)
 
         if flush_now:
             self.producer.flush()
