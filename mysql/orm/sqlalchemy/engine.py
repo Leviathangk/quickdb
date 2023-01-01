@@ -68,13 +68,13 @@ class MysqlSQLAlchemyEngine(SQLAlchemyEngineBase):
 
         # 构造更新的字段
         if len(instance_dict) == 1:
-            instance_tuple = f'({instance_dict[0]})'
+            instance_tuple = f'({list(instance_dict.keys())[0]})'
         else:
             instance_tuple = str(tuple(instance_dict.keys())).replace("'", '')
 
         # 构造更新的数据
         if len(instance_dict.values()) == 1:
-            update_values = ','.join([f'({list(self._get_dict(i).values())[0]})' for i in instance])
+            update_values = ','.join([f"('{list(self._get_dict(i).values())[0]}')" for i in instance])
         else:
             update_values = ','.join([str(tuple(self._get_dict(i).values())) for i in instance])
 
