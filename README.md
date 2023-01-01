@@ -32,10 +32,8 @@ quickdb 是一个操作合集
 其含有以下方法：
 
 * reverse_table_model：逆向表模型
-* insert_one
-* insert_many
-* upsert_one
-* upsert_many
+* insert：一条或多条
+* upsert：一条或多条
 * delete
 * execute
 * merge

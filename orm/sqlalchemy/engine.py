@@ -140,25 +140,18 @@ class SQLAlchemyEngineBase:
 
         os.system(command)
 
-    def insert_one(self, instance: BaseModel):
+    def insert(self, instance: Union[List[BaseModel], BaseModel]):
         """
-        插入一条信息
+        插入
 
-        :param instance: 模型类
+        :param instance: 模型类列表
         :return:
         """
-        with self.session() as session, session.begin():
-            session.add(instance)
+        if not isinstance(instance, list):
+            instance = [instance]
 
-    def insert_many(self, instance_list: List[BaseModel]):
-        """
-        插入多条
-
-        :param instance_list: 模型类列表
-        :return:
-        """
         with self.session() as session, session.begin():
-            session.add_all(instance_list)
+            session.add_all(instance)
 
     def merge(self, instance, load: bool = True, options=None):
         """
@@ -282,7 +275,7 @@ class SQLAlchemyEngineBase:
         if '.' in host:
             host = host.split('.')[-1]
 
-        path = path.joinpath(db).joinpath(host).joinpath(self.conn_url.database + '.py')
+        path = path.joinpath(db + '_' + host).joinpath(self.conn_url.database + '.py')
 
         # 创建路径并创建 __init__.py
         init_file_name = '__init__.py'
