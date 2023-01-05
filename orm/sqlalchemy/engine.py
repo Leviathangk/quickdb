@@ -28,7 +28,7 @@
 
         如果是 Table 类，那可能不起作用
 """
-import os
+import subprocess
 from pathlib import Path
 from copy import deepcopy
 from typing import List, Union
@@ -138,7 +138,9 @@ class SQLAlchemyEngineBase:
         if commands:
             command += f" {commands}"
 
-        os.system(command)
+        result = subprocess.run(command, shell=True, stderr=subprocess.PIPE)
+        if result.stderr:
+            print('执行失败：', result.stderr.decode('gbk'))
 
     def insert(self, instance: Union[List[BaseModel], BaseModel]):
         """
