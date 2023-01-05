@@ -269,7 +269,7 @@ class SQLAlchemyEngineBase:
         """
         获取并创建 models 文件夹的路径
 
-        命名规则：models/数据库类型/host/database.py
+        命名规则：models/数据库类型_host/database.py
 
         :return:
         """
