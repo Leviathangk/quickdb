@@ -124,7 +124,14 @@ class SQLAlchemyEngineBase:
             if Path(path).suffix != '.py':
                 raise SuffixError(f'请输入文件路径，而非文件夹路径，输入：{path}')
 
-            Path(path).parent.mkdir(parents=True, exist_ok=True)
+            # 创建文件夹和 __init__.py
+            p = Path(path)
+            p.parent.mkdir(parents=True, exist_ok=True)
+
+            init_file_name = '__init__.py'
+            if not p.parent.joinpath(init_file_name).exists():
+                with open(p.parent.joinpath(init_file_name), 'w', encoding='utf-8') as f:
+                    pass
         else:
             path = self._get_model_path()
 
