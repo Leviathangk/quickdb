@@ -269,10 +269,12 @@ class SQLAlchemyEngineBase:
         # 构建路径
         path = Path('./models')
 
+        # 取数据库的类型
         db = self.conn_url.drivername
         if '+' in db:
             db = db.split('+')[0]
 
+        # 取数据库的 host 后几位
         host = self.conn_url.host
         if '.' in host:
             host = host.split('.')[-1]
@@ -287,9 +289,6 @@ class SQLAlchemyEngineBase:
                 pass
         if not path.parent.parent.joinpath(init_file_name).exists():
             with open(path.parent.parent.joinpath(init_file_name), 'w', encoding='utf-8') as f:
-                pass
-        if not path.parent.parent.parent.joinpath(init_file_name).exists():
-            with open(path.parent.parent.parent.joinpath(init_file_name), 'w', encoding='utf-8') as f:
                 pass
 
         return path
