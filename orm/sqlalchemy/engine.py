@@ -138,9 +138,9 @@ class SQLAlchemyEngineBase:
         if commands:
             command += f" {commands}"
 
-        result = subprocess.run(command, shell=True, stderr=subprocess.PIPE)
+        result = subprocess.run(command, shell=True, stderr=subprocess.PIPE, encoding='utf-8')
         if result.stderr:
-            print('执行失败：', result.stderr.decode('gbk'))
+            print('执行失败：', result.stderr)
 
     def insert(self, instance: Union[List[BaseModel], BaseModel]):
         """
