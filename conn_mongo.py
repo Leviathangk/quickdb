@@ -18,7 +18,7 @@ class MongoMethod(Collection):
     def __init__(self, database, name: str, **kwargs):
         super().__init__(database, name, **kwargs)
 
-    def upsert_one(self, data: dict, filter_keys: list = None) -> UpdateResult:
+    def upsert_one(self, data: dict, filter_keys: list) -> UpdateResult:
         """
         更新或插入单条
 
