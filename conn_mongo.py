@@ -31,7 +31,7 @@ class MongoMethod(Collection):
         for filter_key in filter_keys:
             filter_data.update({filter_key: data[filter_key]})
 
-        return self.update_one(data, {'$set': filter_data}, True)
+        return self.update_one(filter_data, {'$set': data}, True)
 
     def iter(self, start_id: str = None, pagesize: int = 1, filtration: dict = None):
         """
