@@ -33,11 +33,13 @@ from pathlib import Path
 from copy import deepcopy
 from typing import List, Union
 from sqlalchemy.orm import Session
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, text
 from sqlalchemy.engine.url import URL
 from sqlalchemy.engine import Connection
 from sqlalchemy.engine import Result, Row
 from sqlalchemy.orm import declarative_base
+from sqlalchemy.sql.elements import TextClause
+
 from quickdb.orm.sqlalchemy.exception import SuffixError
 
 BaseModel = declarative_base()
@@ -185,6 +187,9 @@ class SQLAlchemyEngineBase:
         :param back_dict: 以字典形式返回
         :return:
         """
+        if not isinstance(sql, TextClause):
+            sql = text(sql)
+
         with self.session() as session, session.begin():
             result = session.execute(sql, **kwargs)
 
