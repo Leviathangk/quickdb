@@ -70,3 +70,68 @@ class PostgreSQLAlchemyEngine(SQLAlchemyEngineBase):
         # 执行 sql
         with self.session() as session, session.begin():
             return session.execute(upsert_sql)
+
+    from typing import List, Union
+
+    ddd = {
+        "_id": {
+            "$oid": "629dc65e645857a82eb9b195"
+        },
+        "doc_no": "2020111723796",
+        "agent": "中国贸促会专利商标事务所有限公司,张文超",
+        "applicant_name": "江苏徐工工程机械研究院有限公司",
+        "application_date": "2020-10-28",
+
+    }
+
+    def upsert_task_by_dict(self, data: Union[dict, List[dict]], table: str, conflict: List[str],
+                            update_keys: List[str] = None, exclude_keys: List[str] = None):
+        """
+        通过字典进行 upsert
+
+        :param data: 数据
+        :param table: 表格
+        :param conflict: 主键
+        :param update_keys: 更新的键（与 exclude_keys 二选一）
+        :param exclude_keys: 不更新的键
+        :return:
+        """
+        if not data:
+            return
+
+        if update_keys and exclude_keys:
+            raise Exception('update_keys 与 exclude_keys 不应同时存在！')
+
+        if isinstance(data, dict):
+            data = [data]
+
+        # 构造 sql 的 key、value
+        data_keys = list(data[0].keys())
+        keys = '(' + ', '.join([i for i in data_keys]) + ')'
+        values = '(' + ', '.join([f'%({i})s' for i in data_keys]) + ')'
+
+        # 选择更新的键
+        if update_keys:
+            update_keys = [f'{i} = excluded.{i}' for i in update_keys]
+            update = 'SET ' + ', '.join(update_keys) + ';'
+        elif exclude_keys:
+            update_keys = list(set(data_keys).difference(set(exclude_keys)))
+            update_keys = [f'{i} = excluded.{i}' for i in update_keys]
+            update = 'SET ' + ', '.join(update_keys) + ';'
+        else:
+            update_keys = [f'{i} = excluded.{i}' for i in data_keys]
+            update = 'SET ' + ', '.join(update_keys) + ';'
+
+        # 修改主键表达
+        conflict_str = ','.join([f'{i}' for i in conflict])
+
+        # 构造 sql
+        sql = f'''
+            INSERT INTO {table} {keys}
+            VALUES
+                {values} ON CONFLICT ( {conflict_str} ) DO
+            UPDATE 
+                {update}
+        '''
+
+        return self.connection().execute(sql, data)
